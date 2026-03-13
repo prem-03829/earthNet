@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
 import { complaintService } from '../services/complaintService';
 import LocationPickerModal from '../components/LocationPickerModal';
 import FileUploadZone from '../components/FileUploadZone';
+import Dropdown from '../components/Dropdown';
 
 export default function FileComplaint() {
   const navigate = useNavigate();
-  const { addComplaint } = useAppStore();
+  const { addComplaint, userLocation } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   
@@ -21,6 +22,25 @@ export default function FileComplaint() {
     files: [],
     anonymous: false
   });
+
+  const pollutionTypes = [
+    'Air Pollution (Smog/Smoke)',
+    'Water Pollution (Sewage/Chemicals)',
+    'Noise Pollution (Construction/Loudspeakers)',
+    'Waste Mismanagement (Illegal Dumping)',
+    'Light Pollution'
+  ];
+
+  // Auto-fill user location only once if not already set
+  useEffect(() => {
+    if (userLocation && !formData.coordinates) {
+      setFormData(prev => ({
+        ...prev,
+        location: userLocation.city,
+        coordinates: { lat: userLocation.lat, lng: userLocation.lng }
+      }));
+    }
+  }, [userLocation]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,17 +82,12 @@ export default function FileComplaint() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-primary/70">Pollution Type</label>
-            <select 
+            <Dropdown 
+              options={pollutionTypes}
               value={formData.type}
-              onChange={e => setFormData({...formData, type: e.target.value})}
-              className="w-full rounded-lg bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/20 focus:ring-primary focus:border-primary text-slate-900 dark:text-slate-100 py-3 outline-none px-4"
-            >
-              <option>Air Pollution (Smog/Smoke)</option>
-              <option>Water Pollution (Sewage/Chemicals)</option>
-              <option>Noise Pollution (Construction/Loudspeakers)</option>
-              <option>Waste Mismanagement (Illegal Dumping)</option>
-              <option>Light Pollution</option>
-            </select>
+              onChange={(val) => setFormData({...formData, type: val})}
+              placeholder="Select pollution category"
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-primary/70">Estimated Severity</label>
@@ -124,6 +139,15 @@ export default function FileComplaint() {
               <span className="material-symbols-outlined text-primary animate-in zoom-in duration-300">check_circle</span>
             )}
           </div>
+          
+          {formData.coordinates && (
+            <div className="h-32 w-full rounded-xl overflow-hidden border border-slate-200 dark:border-primary/10 relative">
+               <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9ugucbQ-2W9dTbDz1EY7X3nmMSiJi3hxFVfXqEjEyesBTbLvlCkkBs7ffgJGxc-TRUUTR3UiHMSgmD1ZNBdLgdvO0VjUszqRTcxvzhe89k3OzEwhHT_bXrN0kAxFjkXvYGieETaHu_N1shRquTTv8LNa_litSJnf6jPN93t97t66ZcVExEOnoYq2U5BgrHUhJzIQU44H0BcWGBCVRVS564OlcXunMNLGIVf4S_sRZrKEo3EA5ADJSWPITN2WwKWL5zU4rl-Z291Q" className="w-full h-full object-cover opacity-40 grayscale" alt="Map Preview" />
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-red-500">location_on</span>
+               </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">

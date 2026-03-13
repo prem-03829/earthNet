@@ -10,7 +10,7 @@ import { useAppStore } from '../store/useAppStore';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { sensors, alerts, complaints } = useAppStore();
+  const { sensors, alerts, complaints, userLocation, setShowLocationPermission } = useAppStore();
 
   const avgAqi = sensors.length > 0 
     ? Math.round(sensors.reduce((acc, s) => acc + s.aqi, 0) / sensors.length) 
@@ -50,8 +50,22 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Overview</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">Overview</h2>
+          {userLocation && (
+            <div className="flex items-center gap-2 mt-1 text-slate-500 text-sm">
+              <span className="material-symbols-outlined text-sm text-primary">location_on</span>
+              <span>Showing data for <strong>{userLocation.city}</strong></span>
+              <button 
+                onClick={() => setShowLocationPermission(true)}
+                className="ml-2 text-primary hover:underline font-medium"
+              >
+                Change
+              </button>
+            </div>
+          )}
+        </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-primary/5 border border-slate-200 dark:border-primary/10 cursor-pointer hover:bg-slate-200 dark:hover:bg-primary/10 transition-colors">
           <span className="text-sm font-medium">All Regions</span>
           <span className="material-symbols-outlined text-sm">expand_more</span>
@@ -75,7 +89,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <h3 className="text-lg font-bold">Pollution Trends vs Complaint Volume</h3>
-              <p className="text-sm text-slate-500">30-day comparative analysis across all metrics</p>
+              <p className="text-sm text-slate-500">30-day comparative analysis for your region</p>
             </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
@@ -94,7 +108,7 @@ export default function Dashboard() {
         <Card className="flex flex-col gap-6">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">auto_awesome</span>
-            <h3 className="text-lg font-bold">High-Risk Zones</h3>
+            <h3 className="text-lg font-bold">Nearby Alerts</h3>
           </div>
           <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {alerts.length === 0 ? (

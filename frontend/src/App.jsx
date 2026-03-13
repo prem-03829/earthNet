@@ -3,6 +3,9 @@ import { useEffect } from 'react';
 import AdminLayout from './layouts/AdminLayout';
 import CitizenLayout from './layouts/CitizenLayout';
 
+// Components
+import LocationPermissionModal from './components/LocationPermissionModal';
+
 // Pages
 import Dashboard from './pages/Dashboard';
 import PollutionMap from './pages/PollutionMap';
@@ -40,43 +43,51 @@ function App() {
       setComplianceData(compliance);
     });
 
+    // Stability: Increase refresh interval to 20 seconds
     const interval = setInterval(() => {
       simulateRealtime();
-    }, 5000);
+    }, 20000);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<CitizenRegister />} />
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<CitizenRegister />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="map" element={<PollutionMap isAdmin={true} />} />
-          <Route path="compliance" element={<Compliance />} />
-          <Route path="alerts" element={<Alerts />} />
-          <Route path="ai" element={<AiAssistant />} />
-          <Route path="investigation/:id" element={<InvestigationDetail />} />
-          <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
-          <Route path="profile" element={<DummyPage title="Profile" />} />
-        </Route>
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="map" element={<PollutionMap isAdmin={true} />} />
+            <Route path="compliance" element={<Compliance />} />
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="ai" element={<AiAssistant />} />
+            <Route path="investigation/:id" element={<InvestigationDetail />} />
+            <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
+            <Route path="profile" element={<DummyPage title="Profile" />} />
+            <Route path="settings" element={<DummyPage title="Settings" />} />
+            <Route path="notifications" element={<DummyPage title="Notifications" />} />
+          </Route>
 
-        {/* Citizen Routes */}
-        <Route path="/citizen" element={<CitizenLayout />}>
-          <Route path="map" element={<PollutionMap />} />
-          <Route path="file-complaint" element={<FileComplaint />} />
-          <Route path="my-complaints" element={<MyComplaints />} />
-          <Route path="complaint/:id" element={<ComplaintDetails />} />
-          <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
-          <Route path="profile" element={<DummyPage title="Profile" />} />
-        </Route>
-      </Routes>
-    </Router>
+          {/* Citizen Routes */}
+          <Route path="/citizen" element={<CitizenLayout />}>
+            <Route path="map" element={<PollutionMap />} />
+            <Route path="file-complaint" element={<FileComplaint />} />
+            <Route path="my-complaints" element={<MyComplaints />} />
+            <Route path="complaint/:id" element={<ComplaintDetails />} />
+            <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
+            <Route path="profile" element={<DummyPage title="Profile" />} />
+            <Route path="settings" element={<DummyPage title="Settings" />} />
+            <Route path="notifications" element={<DummyPage title="Notifications" />} />
+          </Route>
+        </Routes>
+      </Router>
+      <LocationPermissionModal />
+    </>
   );
 }
 

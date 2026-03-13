@@ -3,17 +3,19 @@ import { useAppStore } from '../store/useAppStore';
 import { sensorService } from '../services/sensorService';
 
 export default function PollutionMap({ isAdmin }) {
-  const { sensors, setSensors, mapFilter, setMapFilter } = useAppStore();
+  const { sensors, setSensors, mapFilter, setMapFilter, userLocation } = useAppStore();
 
   const handleRefresh = async () => {
     const data = await sensorService.getSensors();
     setSensors(data);
   };
 
+  const defaultCenter = userLocation ? [userLocation.lat, userLocation.lng] : [22.5937, 78.9629];
+
   return (
     <div className="relative flex-1 h-[calc(100vh-64px)] w-full bg-slate-200 dark:bg-slate-900 overflow-hidden animate-in fade-in duration-700">
       {sensors.length > 0 ? (
-        <MapUi sensors={sensors} />
+        <MapUi sensors={sensors} center={defaultCenter} />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm z-50">
           <div className="flex flex-col items-center gap-4">
@@ -44,10 +46,10 @@ export default function PollutionMap({ isAdmin }) {
             ))}
           </div>
           <div className="flex items-center gap-3 px-2">
-            <select className="bg-transparent border-none text-sm font-medium focus:ring-0 cursor-pointer outline-none">
-              <option>Real-time (Live)</option>
-              <option>Last 24 Hours</option>
-            </select>
+            <div className="flex flex-col items-start px-2 hidden md:flex">
+              <span className="text-[10px] uppercase font-bold text-slate-400">Current Focus</span>
+              <span className="text-xs font-bold text-primary truncate max-w-[100px]">{userLocation?.city || 'India'}</span>
+            </div>
             <div className="h-8 w-px bg-slate-200 dark:bg-primary/20"></div>
             <button 
               onClick={handleRefresh}
