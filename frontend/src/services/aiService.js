@@ -1,12 +1,15 @@
-export const aiService = {
-  sendMessage: async (message) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          role: 'ai',
-          content: `I've analyzed the geospatial data for "${message}". The indices show a moderate correlation with recent industrial activity. Would you like me to generate a detailed NDVI breakdown for the region?`,
-        });
-      }, 1000);
-    });
-  }
-};
+
+export async function getPrediction(data) {
+
+  const response = await fetch("http://localhost:8000/predict", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+
+  return result;
+}
