@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import ai
-from app.routers.environment_router import router as environment_router
-
 
 app = FastAPI(
     title="PrithviNet AI Backend",

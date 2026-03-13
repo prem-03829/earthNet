@@ -1,14 +1,8 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 
 export default function DummyPage({ title }) {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleAiClick = () => {
-    const aiPath = location.pathname.startsWith('/admin') ? '/admin/ai' : '/citizen/ai-assistant';
-    navigate(aiPath);
-  };
 
   return (
     <div className="p-8 flex items-center justify-center h-full">
@@ -22,7 +16,7 @@ export default function DummyPage({ title }) {
             <h3 className="font-bold">Try Prithvi AI instead?</h3>
           </div>
           <p className="text-sm text-slate-400">While this page is being built, you can ask our AI assistant for environmental insights or geospatial analysis.</p>
-          <Button variant="primary" className="w-full" onClick={handleAiClick}>
+          <Button variant="primary" className="w-full" onClick={() => navigate('/assistant')}>
             Open AI Assistant
           </Button>
         </div>

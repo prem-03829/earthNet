@@ -52,6 +52,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<CitizenRegister />} />
+          <Route path="/assistant" element={<AIAssistant />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>

@@ -139,7 +139,7 @@ export default function Dashboard() {
             )}
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="text-sm" onClick={() => navigate('/admin/ai')}>
+            <Button variant="outline" className="text-sm" onClick={() => navigate('/assistant')}>
               <span className="material-symbols-outlined text-sm">robot_2</span>
               AI Assistant
             </Button>

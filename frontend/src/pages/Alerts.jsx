@@ -72,7 +72,7 @@ export default function Alerts() {
             <p className="text-sm text-slate-500">Ask Prithvi AI to analyze historical trends for these alert zones.</p>
           </div>
         </div>
-        <Button variant="primary" className="text-sm px-6" onClick={() => navigate('/admin/ai')}>
+        <Button variant="primary" className="text-sm px-6" onClick={() => navigate('/assistant')}>
           Consult AI
         </Button>
       </div>
