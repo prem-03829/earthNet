@@ -142,7 +142,7 @@ export default function Profile() {
               </div>
             </Card>
 
-            <Card className="bg-slate-900 border-none relative overflow-hidden group cursor-pointer" onClick={() => navigate('/citizen/awareness')}>
+            <Card className="bg-slate-900 border-none relative overflow-hidden group cursor-pointer" onClick={() => navigate('/assistant')}>
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
               <div className="relative z-10 space-y-2">
                 <h3 className="text-lg font-bold text-white">Awareness Center</h3>

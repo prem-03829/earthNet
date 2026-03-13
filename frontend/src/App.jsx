@@ -11,7 +11,7 @@ import Dashboard from './pages/Dashboard';
 import PollutionMap from './pages/PollutionMap';
 import Compliance from './pages/Compliance';
 import Alerts from './pages/Alerts';
-import AiAssistant from './pages/AiAssistant';
+import AIAssistant from './pages/AIAssistant';
 import MyComplaints from './pages/MyComplaints';
 import FileComplaint from './pages/FileComplaint';
 import InvestigationDetail from './pages/InvestigationDetail';
@@ -52,6 +52,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<CitizenRegister />} />
+          <Route path="/assistant" element={<AIAssistant />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -59,7 +60,7 @@ function App() {
             <Route path="map" element={<PollutionMap isAdmin={true} />} />
             <Route path="compliance" element={<Compliance />} />
             <Route path="alerts" element={<Alerts />} />
-            <Route path="ai" element={<AiAssistant />} />
+            <Route path="ai" element={<AIAssistant />} />
             <Route path="investigation/:id" element={<InvestigationDetail />} />
             <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
             <Route path="profile" element={<Profile />} />
@@ -77,6 +78,7 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<DummyPage title="Settings" />} />
             <Route path="notifications" element={<DummyPage title="Notifications" />} />
+            <Route path="ai-assistant" element={<AIAssistant />} />
           </Route>
         </Routes>
       </Router>

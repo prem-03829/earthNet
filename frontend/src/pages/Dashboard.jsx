@@ -121,7 +121,13 @@ export default function Dashboard() {
               ))
             )}
           </div>
-          <Button variant="primary" className="w-full text-sm">Generate Full Strategy Report</Button>
+          <div className="flex gap-3">
+            <Button variant="outline" className="text-sm" onClick={() => navigate('/assistant')}>
+              <span className="material-symbols-outlined text-sm">robot_2</span>
+              AI Assistant
+            </Button>
+            <Button variant="primary" className="w-full text-sm">Generate Full Strategy Report</Button>
+          </div>
         </Card>
       </div>
 
