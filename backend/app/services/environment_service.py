@@ -22,7 +22,7 @@ def predict_environment(air, noise, water):
     water_prediction = float(water_model.predict(water_df)[0])
 
     return {
-        "air_quality_index": float(air_prediction),
+        "air_quality": float(air_prediction),
         "noise_level": noise_prediction,
         "water_quality": water_prediction
     }

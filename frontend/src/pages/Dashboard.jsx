@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import KpiCard from '../components/KpiCard';
 import Chart from '../components/Chart';
@@ -10,6 +11,8 @@ import { usePollutionStore } from '../store/usePollutionStore';
 import { useComplaintStore } from '../store/useComplaintStore';
 import { useAlertStore } from '../store/useAlertStore';
 import { useUserStore } from '../store/useUserStore';
+import { getRecommendations } from '../services/aiService';
+import EnvironmentalAnalysis from '../components/EnvironmentalAnalysis';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -17,10 +20,24 @@ export default function Dashboard() {
   const { complaints } = useComplaintStore();
   const { alerts } = useAlertStore();
   const { user, setShowLocationPermission } = useUserStore();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [recommendation, setRecommendation] = useState(null);
 
   const avgAqi = sensors.length > 0 
     ? Math.round(sensors.reduce((acc, s) => acc + s.aqi, 0) / sensors.length) 
-    : 0;
+    : 182; // Fallback to user's snippet value if no sensors
+  
+  const handleGenerateReport = async () => {
+    setIsGenerating(true);
+    try {
+      const data = await getRecommendations(avgAqi, "High", "Poor"); // Using snippet values for noise/water for now
+      setRecommendation(data.reply);
+    } catch (error) {
+      console.error("Failed to generate report:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   const activeAlerts = alerts.filter(a => a.type !== 'STABLE').length;
 
@@ -126,8 +143,16 @@ export default function Dashboard() {
               <span className="material-symbols-outlined text-sm">robot_2</span>
               AI Assistant
             </Button>
-            <Button variant="primary" className="w-full text-sm">Generate Full Strategy Report</Button>
+            <Button 
+              variant="primary" 
+              className="w-full text-sm"
+              onClick={handleGenerateReport}
+              disabled={isGenerating}
+            >
+              {isGenerating ? 'Analyzing Data...' : 'Generate Full Strategy Report'}
+            </Button>
           </div>
+          <EnvironmentalAnalysis analysis={recommendation} />
         </Card>
       </div>
 

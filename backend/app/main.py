@@ -6,7 +6,7 @@ from app.routers.environment_router import router as environment_router
 
 app = FastAPI(
     title="PrithviNet AI Backend",
-    description="Minimal FastAPI backend for environmental assistant powered by Ollama Phi-3",
+    description="FastAPI backend for environmental assistant powered by Google Gemini",
     version="1.0.0"
 )
 
@@ -21,6 +21,7 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(ai.router)
+app.include_router(environment_router)
 
 @app.get("/")
 async def root():
@@ -29,5 +30,3 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
-
-app.include_router(environment_router)
