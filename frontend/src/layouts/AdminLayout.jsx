@@ -9,7 +9,7 @@ export default function AdminLayout() {
     { label: 'Compliance', icon: 'verified_user', to: '/admin/compliance' },
     { label: 'Policy Insights', icon: 'lightbulb', to: '#' },
     { label: 'Alerts', icon: 'notifications', to: '/admin/alerts' },
-    { label: 'AI Assistant', icon: 'robot_2', to: '/admin/ai' },
+    { label: 'AI Assistant', icon: 'robot_2', to: '/assistant' },
     { label: 'Reports', icon: 'bar_chart', to: '#' },
   ];
 

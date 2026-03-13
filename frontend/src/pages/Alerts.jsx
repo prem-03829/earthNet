@@ -62,6 +62,20 @@ export default function Alerts() {
           ))
         )}
       </div>
+      <div className="mt-12 p-6 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+            <span className="material-symbols-outlined">auto_awesome</span>
+          </div>
+          <div>
+            <h3 className="font-bold">Need deeper analysis?</h3>
+            <p className="text-sm text-slate-500">Ask Prithvi AI to analyze historical trends for these alert zones.</p>
+          </div>
+        </div>
+        <Button variant="primary" className="text-sm px-6" onClick={() => navigate('/assistant')}>
+          Consult AI
+        </Button>
+      </div>
     </div>
   );
 }
