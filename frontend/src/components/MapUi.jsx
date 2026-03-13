@@ -1,38 +1,45 @@
-import { useState, useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo, useImperativeHandle, forwardRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { cn } from '../utils/cn';
+import { useUserStore } from '../store/useUserStore';
 
-// Fix Leaflet marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+// --- Leaflet Default Icon Fix ---
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconRetinaUrl: iconRetina,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Custom Icons
+const userLocationIcon = L.divIcon({
+  className: 'user-location-marker',
+  html: `<div class="relative flex h-10 w-10 items-center justify-center">
+          <div class="absolute h-full w-full animate-pulse rounded-full bg-blue-500 opacity-20"></div>
+          <div class="absolute h-6 w-6 animate-ping rounded-full bg-blue-400 opacity-40"></div>
+          <div class="h-4 w-4 rounded-full border-2 border-white bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.8)]"></div>
+         </div>`,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20],
 });
 
-// Helper component to update map view when center changes, but only once
-function AutoCenter({ center, zoom }) {
-  const map = useMap();
-  const hasCentered = useRef(false);
-
-  useEffect(() => {
-    if (center && !hasCentered.current) {
-      map.setView(center, zoom);
-      hasCentered.current = true;
-    }
-  }, [center, zoom, map]);
-
-  return null;
-}
-
-const getMarkerIcon = (status) => {
+const getSensorIcon = (status) => {
   const color = status === 'critical' ? '#ef4444' : status === 'unhealthy' ? '#f97316' : status === 'moderate' ? '#eab308' : '#21c468';
   const pingClass = status === 'critical' ? 'animate-ping' : '';
   
   return L.divIcon({
-    className: 'custom-div-icon',
+    className: 'sensor-marker',
     html: `<div class="relative flex h-8 w-8 items-center justify-center">
             <div class="absolute h-full w-full ${pingClass} rounded-full" style="background-color: ${color}; opacity: 0.4;"></div>
             <div class="h-4 w-4 rounded-full border-2 border-white shadow-md" style="background-color: ${color};"></div>
@@ -43,15 +50,37 @@ const getMarkerIcon = (status) => {
   });
 };
 
-const indiaBounds = [
-  [6.5, 68], // South West
-  [37.5, 97.5], // North East
-];
+// --- Map Controller Helper ---
+const MapController = forwardRef((props, ref) => {
+  const map = useMap();
+  const { detectLocation } = useUserStore();
+  const hasInitialized = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => map.setZoom(map.getZoom() + 1),
+    zoomOut: () => map.setZoom(map.getZoom() - 1),
+    flyTo: (lat, lng, zoom = 13) => {
+      map.flyTo([lat, lng], zoom, { duration: 1.5 });
+    }
+  }));
+
+  // On Mount: Detect location and fly to it ONCE
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      detectLocation((loc) => {
+        map.flyTo([loc.lat, loc.lng], 10, { duration: 2 });
+      });
+      hasInitialized.current = true;
+    }
+  }, [detectLocation, map]);
+
+  return null;
+});
 
 const SensorMarker = memo(({ sensor }) => (
   <Marker 
     position={[sensor.lat, sensor.lng]}
-    icon={getMarkerIcon(sensor.status)}
+    icon={getSensorIcon(sensor.status)}
   >
     <Popup className="custom-popup" minWidth={200}>
       <div className="bg-background-dark text-slate-100 p-1">
@@ -69,57 +98,59 @@ const SensorMarker = memo(({ sensor }) => (
             {sensor.status}
           </span>
         </div>
-        
         <div className="flex items-end justify-between">
           <div>
             <p className="text-3xl font-black text-white">{sensor.aqi}</p>
             <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Current AQI Index</p>
           </div>
           <div className="text-right">
-            <div className={cn(
-              "flex items-center justify-end font-bold text-sm",
-              sensor.trend > 0 ? "text-red-500" : "text-primary"
-            )}>
-              <span className="material-symbols-outlined text-sm">
-                {sensor.trend > 0 ? 'trending_up' : 'trending_down'}
-              </span>
+            <div className={cn("flex items-center justify-end font-bold text-sm", sensor.trend > 0 ? "text-red-500" : "text-primary")}>
+              <span className="material-symbols-outlined text-sm">{sensor.trend > 0 ? 'trending_up' : 'trending_down'}</span>
               {Math.abs(sensor.trend)}%
             </div>
             <p className="text-[10px] opacity-40">vs last hour</p>
           </div>
-        </div>
-        
-        <div className="mt-4 pt-3 border-t border-primary/10 flex items-center gap-2">
-          <span className="material-symbols-outlined text-xs opacity-40">schedule</span>
-          <p className="text-[10px] opacity-60 uppercase font-medium tracking-tight">Updated {sensor.updated}</p>
         </div>
       </div>
     </Popup>
   </Marker>
 ));
 
-export default function MapUi({ sensors, center }) {
-  const initialCenter = center || [22.5937, 78.9629];
-  const initialZoom = center ? 10 : 5;
-
+const MapUi = forwardRef(({ sensors }, ref) => {
+  const { userLocation } = useUserStore();
+  
   return (
-    <div className="relative w-full h-full z-0">
+    <div className="relative w-full h-full z-0 overflow-hidden">
       <MapContainer 
-        center={initialCenter} 
-        zoom={initialZoom} 
+        center={[22.5937, 78.9629]} // Fixed Initial Center (India)
+        zoom={5} 
         minZoom={4}
-        maxBounds={indiaBounds}
+        maxBounds={[[6.5, 68], [37.5, 97.5]]}
         maxBoundsViscosity={1.0}
         className="w-full h-full" 
         zoomControl={false}
+        scrollWheelZoom={true}
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://carto.com/">Carto</a>'
         />
         
-        <AutoCenter center={center} zoom={initialZoom} />
+        <MapController ref={ref} />
         
+        {/* User Location Marker */}
+        {userLocation && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon}>
+            <Popup className="custom-popup">
+              <div className="p-1 text-center">
+                <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">Your Location</p>
+                <p className="text-sm font-medium text-white">{userLocation.city}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {/* Pollution Sensors */}
         {sensors?.map((sensor) => (
           <SensorMarker key={sensor.id} sensor={sensor} />
         ))}
@@ -135,12 +166,12 @@ export default function MapUi({ sensors, center }) {
           padding: 0;
           overflow: hidden;
         }
-        .custom-popup .leaflet-popup-content {
-          margin: 16px;
-        }
+        .custom-popup .leaflet-popup-content { margin: 16px; }
         .custom-popup .leaflet-popup-tip { background: #122018; }
         .leaflet-div-icon { background: transparent; border: none; }
       `}</style>
     </div>
   );
-}
+});
+
+export default MapUi;
