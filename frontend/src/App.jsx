@@ -12,6 +12,7 @@ import AiAssistant from './pages/AiAssistant';
 import MyComplaints from './pages/MyComplaints';
 import FileComplaint from './pages/FileComplaint';
 import InvestigationDetail from './pages/InvestigationDetail';
+import ComplaintDetails from './pages/ComplaintDetails';
 import Login from './pages/Login';
 import CitizenRegister from './pages/CitizenRegister';
 import DummyPage from './pages/DummyPage';
@@ -70,6 +71,7 @@ function App() {
           <Route path="map" element={<PollutionMap />} />
           <Route path="file-complaint" element={<FileComplaint />} />
           <Route path="my-complaints" element={<MyComplaints />} />
+          <Route path="complaint/:id" element={<ComplaintDetails />} />
           <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
           <Route path="profile" element={<DummyPage title="Profile" />} />
         </Route>

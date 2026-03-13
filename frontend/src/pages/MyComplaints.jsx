@@ -1,12 +1,16 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import Timeline from '../components/Timeline';
 import ComplaintCard from '../components/ComplaintCard';
 import Button from '../components/Button';
+import EvidenceModal from '../components/EvidenceModal';
 
 export default function MyComplaints() {
   const navigate = useNavigate();
   const { complaints } = useAppStore();
+  const [isEvidenceModalOpen, setIsEvidenceModalOpen] = useState(false);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   const latestComplaint = complaints[0] || {};
   
@@ -15,6 +19,15 @@ export default function MyComplaints() {
     { title: "Reviewed & Validated", description: "Case officer verified GPS coordinates and photo metadata.", time: "Oct 27, 2024 — 02:15 PM", icon: "verified" },
     { title: "Received", description: "Complaint successfully logged into the system.", time: "Oct 26, 2024 — 09:00 AM", icon: "mark_email_read" },
   ];
+
+  const handleViewEvidence = (complaint) => {
+    setSelectedComplaint(complaint);
+    setIsEvidenceModalOpen(true);
+  };
+
+  const handlePastReportClick = (id) => {
+    navigate(`/citizen/complaint/${id}`);
+  };
 
   return (
     <div className="p-8 lg:p-12 animate-in fade-in duration-500">
@@ -87,7 +100,13 @@ export default function MyComplaints() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <Button variant="secondary" className="flex-1">View Evidence Details</Button>
+                  <Button 
+                    variant="secondary" 
+                    className="flex-1"
+                    onClick={() => handleViewEvidence(latestComplaint)}
+                  >
+                    View Evidence Details
+                  </Button>
                   <Button 
                     variant="outline" 
                     className="flex-1"
@@ -127,7 +146,9 @@ export default function MyComplaints() {
         <h3 className="text-xl font-bold mb-6">Past Reports</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {complaints.slice(1).map((c, idx) => (
-            <ComplaintCard key={idx} data={c} />
+            <div key={idx} onClick={() => handlePastReportClick(c.id)} className="cursor-pointer">
+              <ComplaintCard data={c} />
+            </div>
           ))}
           <div className="p-6 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-primary/5 rounded-xl flex flex-col justify-center items-center group cursor-pointer hover:border-primary/40 transition-all border-dashed">
             <span className="material-symbols-outlined text-slate-400 mb-1">history</span>
@@ -135,6 +156,12 @@ export default function MyComplaints() {
           </div>
         </div>
       </section>
+
+      <EvidenceModal 
+        isOpen={isEvidenceModalOpen}
+        onClose={() => setIsEvidenceModalOpen(false)}
+        files={selectedComplaint?.files}
+      />
     </div>
   );
 }
