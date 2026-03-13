@@ -17,9 +17,9 @@ def predict_environment(air, noise, water):
     noise_df = pd.DataFrame([noise])
     water_df = pd.DataFrame([water])
 
-    air_prediction = air_model.predict(air_df)[0]
-    noise_prediction = noise_model.predict(noise_df)[0]
-    water_prediction = water_model.predict(water_df)[0]
+    air_prediction = float(air_model.predict(air_df)[0])
+    noise_prediction = float(noise_model.predict(noise_df)[0])
+    water_prediction = float(water_model.predict(water_df)[0])
 
     return {
         "air_quality_index": float(air_prediction),
