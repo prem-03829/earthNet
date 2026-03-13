@@ -16,40 +16,34 @@ import MyComplaints from './pages/MyComplaints';
 import FileComplaint from './pages/FileComplaint';
 import InvestigationDetail from './pages/InvestigationDetail';
 import ComplaintDetails from './pages/ComplaintDetails';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import CitizenRegister from './pages/CitizenRegister';
 import DummyPage from './pages/DummyPage';
 
-// Store & Services
-import { useAppStore } from './store/useAppStore';
-import { sensorService } from './services/sensorService';
-import { alertService } from './services/alertService';
-import { complaintService } from './services/complaintService';
-import { complianceService } from './services/complianceService';
+// Stores
+import { usePollutionStore } from './store/usePollutionStore';
+import { useComplaintStore } from './store/useComplaintStore';
 
 function App() {
-  const { setSensors, setAlerts, setComplaints, setComplianceData, simulateRealtime } = useAppStore();
+  const simulatePollution = usePollutionStore(state => state.simulatePollution);
+  const simulateStatusUpdates = useComplaintStore(state => state.simulateStatusUpdates);
 
   useEffect(() => {
-    Promise.all([
-      sensorService.getSensors(),
-      alertService.getAlerts(),
-      complaintService.getComplaints(),
-      complianceService.getComplianceData()
-    ]).then(([sensors, alerts, complaints, compliance]) => {
-      setSensors(sensors);
-      setAlerts(alerts);
-      setComplaints(complaints);
-      setComplianceData(compliance);
-    });
+    // Real-time Simulation Engine
+    const pollutionInterval = setInterval(() => {
+      simulatePollution();
+    }, 10000); // 10s
 
-    // Stability: Increase refresh interval to 20 seconds
-    const interval = setInterval(() => {
-      simulateRealtime();
-    }, 20000);
+    const complaintInterval = setInterval(() => {
+      simulateStatusUpdates();
+    }, 20000); // 20s
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(pollutionInterval);
+      clearInterval(complaintInterval);
+    };
+  }, [simulatePollution, simulateStatusUpdates]);
 
   return (
     <>
@@ -68,7 +62,7 @@ function App() {
             <Route path="ai" element={<AiAssistant />} />
             <Route path="investigation/:id" element={<InvestigationDetail />} />
             <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
-            <Route path="profile" element={<DummyPage title="Profile" />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<DummyPage title="Settings" />} />
             <Route path="notifications" element={<DummyPage title="Notifications" />} />
           </Route>
@@ -80,7 +74,7 @@ function App() {
             <Route path="my-complaints" element={<MyComplaints />} />
             <Route path="complaint/:id" element={<ComplaintDetails />} />
             <Route path="awareness" element={<DummyPage title="Awareness & Data" />} />
-            <Route path="profile" element={<DummyPage title="Profile" />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<DummyPage title="Settings" />} />
             <Route path="notifications" element={<DummyPage title="Notifications" />} />
           </Route>

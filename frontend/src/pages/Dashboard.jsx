@@ -6,11 +6,17 @@ import Table from '../components/Table';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import { useAppStore } from '../store/useAppStore';
+import { usePollutionStore } from '../store/usePollutionStore';
+import { useComplaintStore } from '../store/useComplaintStore';
+import { useAlertStore } from '../store/useAlertStore';
+import { useUserStore } from '../store/useUserStore';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { sensors, alerts, complaints, userLocation, setShowLocationPermission } = useAppStore();
+  const { sensors } = usePollutionStore();
+  const { complaints } = useComplaintStore();
+  const { alerts } = useAlertStore();
+  const { user, setShowLocationPermission } = useUserStore();
 
   const avgAqi = sensors.length > 0 
     ? Math.round(sensors.reduce((acc, s) => acc + s.aqi, 0) / sensors.length) 
@@ -53,16 +59,10 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">Overview</h2>
-          {userLocation && (
+          {user && (
             <div className="flex items-center gap-2 mt-1 text-slate-500 text-sm">
               <span className="material-symbols-outlined text-sm text-primary">location_on</span>
-              <span>Showing data for <strong>{userLocation.city}</strong></span>
-              <button 
-                onClick={() => setShowLocationPermission(true)}
-                className="ml-2 text-primary hover:underline font-medium"
-              >
-                Change
-              </button>
+              <span>Showing data for <strong>{user.city}</strong></span>
             </div>
           )}
         </div>
@@ -121,19 +121,7 @@ export default function Dashboard() {
               ))
             )}
           </div>
-          <Button 
-            variant="primary" 
-            className="w-full text-sm"
-            onClick={() => {
-              const link = document.createElement('a');
-              link.href = '#';
-              link.download = 'strategy_report.pdf';
-              link.click();
-              alert('Report download simulated.');
-            }}
-          >
-            Generate Full Strategy Report
-          </Button>
+          <Button variant="primary" className="w-full text-sm">Generate Full Strategy Report</Button>
         </Card>
       </div>
 
